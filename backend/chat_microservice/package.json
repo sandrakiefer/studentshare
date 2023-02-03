@@ -1,0 +1,25 @@
+{
+    "name": "websocket",
+    "version": "2.0.0",
+    "description": "Chat Microservice - Websocket",
+    "main": "server.js",
+    "scripts": {
+        "test": "jasmine",
+        "start": "nodemon server.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@google-cloud/firestore": "^6.4.2",
+        "body-parser": "^1.18.3",
+        "cors": "^2.8.5",
+        "express": "^4.16.3",
+        "jsonwebtoken": "^9.0.0",
+        "nodemon": "^2.0.20",
+        "socket.io": "^4.5.0"
+    },
+    "devDependencies": {
+        "jasmine": "^3.1.0",
+        "request": "^2.87.0"
+    }
+}

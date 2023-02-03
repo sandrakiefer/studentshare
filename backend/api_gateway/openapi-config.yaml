@@ -1,0 +1,336 @@
+swagger: '2.0'
+info: 
+  title: StudentShare Backend API
+  description: API gateway to reach the various microservices in the cloud in a bundled way
+  version: 1.0.0
+host: backend.apigateway.studentshare.cloud.goog
+schemes:
+  - https
+produces:
+  - application/json
+securityDefinitions:
+  jwt:
+    flow: "implicit"
+    authorizationUrl: ""
+    type: "oauth2"
+    x-google-issuer: "StudentShare"
+    x-google-jwks_uri: "https://storage.googleapis.com/studentshare-key-bucket/StudentSharePublicKeyJWK.json"
+    x-google-audiences: "https://www.studentshare.de" 
+paths:
+  /user/login:
+    post:
+      tags:
+        - user
+      summary: Login a user an generate JWT access token
+      operationId: user login
+      x-google-backend:
+        address: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users/login
+        jwt_audience: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users
+      security: []
+      parameters:
+        - name: userInfo
+          in: body
+          description: Information of the user to be logged in
+          schema:
+            type: object
+            required:
+              - token
+            properties:
+              token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+              courses:
+                type: string
+                example: Design Informatik Medien,Sozialwesen
+                enum:
+                  - Architektur und Bauingenieurwesen
+                  - Design Informatik Medien
+                  - Ingenieurwissenschaften
+                  - Sozialwesen
+                  - Wiesbaden Business School
+      responses:
+        200:
+          description: Successful login
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        401:
+          description: Invalid Google JWT
+    options:
+      tags:
+        - user
+      operationId: user login cors
+      x-google-backend:
+        address: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users/login
+        jwt_audience: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
+  /user/isRegistered:
+    get:
+      tags:
+        - user
+      summary: Check if a user is already registered in the database
+      operationId: user isRegistered
+      x-google-backend:
+        address: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users/isRegistered
+        jwt_audience: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users
+      security: []
+      parameters:
+        - name: email
+          in: query
+          type: string
+          description: Email of the user to be checked if already registered
+      responses:
+        200:
+          description: True if user is already registered, otherwise false
+          schema:
+            type: object
+            properties: 
+              data:
+                type: boolean
+    options:
+      tags:
+        - user
+      operationId: user isRegistered cors
+      x-google-backend:
+        address: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users/isRegistered
+        jwt_audience: https://europe-west3-studentshare.cloudfunctions.net/studentshare-users
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
+  /files:
+    get:
+      tags:
+        - files
+      summary: Home File Screen, shows every File from a specific major and only if the user has the rights for it.
+      operationId: file home
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/files
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+      security:
+        - jwt: []
+      parameters:
+        - name: userInfo
+          in: body
+          description: Information of the User to show him the available files
+          schema:
+            type: object
+            required:
+              - token
+      responses:
+        200:
+          description: Available Files to download
+    options:
+      tags:
+        - files
+      operationId: file cors
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/files
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
+  /files/delete/{docname}:
+    post:
+      tags:
+        - files
+      summary: Delete a file only when you are the owner of the file
+      operationId: file delete
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/delete
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+        path_translation: CONSTANT_ADDRESS
+      security:
+        - jwt: []
+      parameters:
+        - name: docname
+          in: path
+          required: true
+          type: string
+          description: The File Id for the Firestore collection and the Bucket
+      responses:
+        200:
+          description: "Boolean if it works out"
+          schema:
+            type: boolean
+    options:
+      tags:
+        - files
+      operationId: file delete cors
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/delete
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+      parameters:
+        - name: docname
+          in: path
+          required: true
+          type: string
+          description: The File Id for the Firestore collection and the Bucket
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
+  /files/owner/{email}:
+    get:
+      tags:
+        - files
+      summary: Get all files from one owner. Check if the user has the rights to see the files
+      operationId: file owner
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/owner
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+        path_translation: CONSTANT_ADDRESS
+      security:
+        - jwt: []
+      parameters:
+        - name: email
+          in: path
+          type: string
+          required: true
+          description: The email to get a unique representation of the user
+      responses:
+        200:
+          description: "Get all the files from that user, if he/she has all the rights"
+    options:
+      tags:
+        - files
+      operationId: file owner cors
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/owner
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+        path_translation: CONSTANT_ADDRESS
+      parameters:
+        - name: email
+          in: path
+          type: string
+          required: true
+          description: The email to get a unique representation of the user
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
+  /files/dropdown/{right}:
+    get:
+      tags:
+        - files
+      summary: Get all files from a specific major
+      operationId: file by rights
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/dropdown
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+        path_translation: CONSTANT_ADDRESS
+      security:
+        - jwt: []
+      parameters:
+        - name: right
+          in: path
+          required: true
+          type: string
+          description: One specific major to filter with
+      responses:
+        200:
+          description: "Get all files filtered with the chosen right"
+    options:
+      tags:
+        - files
+      operationId: file dropdown cors
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/dropdown
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+        path_translation: CONSTANT_ADDRESS
+      parameters:
+        - name: right
+          in: path
+          required: true
+          type: string
+          description: One specific major to filter with
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
+  /files/upload:
+    post:
+      tags:
+        - files
+      summary: Upload a file from a user
+      operationId: file upload
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/upload
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+      security:
+        - jwt: []
+      parameters:
+        - name: formdata
+          in: body
+          description: The file wrapped in a FormData object
+          schema:
+            type: object
+      responses:
+        200:
+          description: "Get a status message back"
+          schema:
+            type: object
+    options:
+      tags:
+        - files
+      operationId: file upload cors
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/upload
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
+  /files/download/{id}:
+    get:
+      tags:
+        - files
+      summary: Download a file from the system if you have the rights
+      operationId: file download
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/download
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+        path_translation: CONSTANT_ADDRESS
+      security:
+        - jwt: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: The Id of the downloaded file
+      responses:
+        200:
+          description: "Get the arraybuffer of the file back"
+    options:
+      tags:
+        - files
+      operationId: file download cors
+      x-google-backend:
+        address: https://student-fileshare-api-b6d727ldhq-ey.a.run.app/download
+        jwt_audience: https://student-fileshare-api-b6d727ldhq-ey.a.run.app
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: The Id of the downloaded file
+      responses:
+        200:
+          description: "Allow"
+        401:
+          description: "Cors not allowed"
