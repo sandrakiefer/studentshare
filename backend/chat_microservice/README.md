@@ -21,7 +21,7 @@ Für den Chat Microservice wird die Google App Engine verwendet, da für den Cha
 
 Der Chat Microservice ist mit der NoSQL-Datenbank Firestore verbunden, in der die Chatnachrichten mit Informationen über den User (Name + E-Mail) sowie die Uhrzeit der Chatnachricht gespeichert werden. Dies ermöglicht es, alle alten Nachrichten nach erfolgreicher Anmeldung im Frontend aus der Datenbank zu laden und diese im Chatverlauf anzeigen zu lassen. Eine NoSQL-Datenbank eignet sich für diesen Anwendungsfall sehr gut, da die Informationen jeweils als Key-Value-Paare gespeichert werden. Die Key-Attribute “Name”, “E-Mail”, “Date” und “Message” werden dann mit Informationen eines übermittelten Chatobjekts gefüllt und gespeichert. Mit Firestore lassen sich mehrere Tausend Chatobjekte pro Sekunde verarbeiten und speichern, sodass der Microservice fehlerfrei laufen kann. 
 
-![Swimlanediagramm Chatverwaltung](documentation/pics/chat_swimlane.png)
+![Swimlanediagramm Chatverwaltung](/documentation/pics/chat_swimlane.png)
 
 Normalerweise müssen die Microservices nicht eigenständig die JWT-Token der User verifizieren. Der Chat Microservice ist jedoch ein Sonderfall. Im Regelfall übernimmt das API-Gateway die Authentifizierung und Autorisierung. Aufgrund der Inkompatibilität von Googles API-Gateway mit der Websocketverbindung muss der Chat Microservice dies eigenständig durchführen. 
 

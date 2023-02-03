@@ -401,6 +401,8 @@ export default defineComponent({
       }
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // create a formdata object with all file information and send it to the backend.
+    // reload the main page after successful upload
     async function onFileSelected(event: any) {
       let file = event.target.files[0];
 
@@ -441,6 +443,7 @@ export default defineComponent({
       });
     }
     async function downloadWithAxios(id: string, title: string) {
+      // use axios for getting the file from the backend through the id and force a download for the user.
       axios
         .get(
           `https://studentshare-api-backend-gateway-56c3939t.ew.gateway.dev/files/download/${id}?token=${principal.value.token.token}`,
@@ -457,6 +460,7 @@ export default defineComponent({
         .catch(() => console.log("error occured"));
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // download the given file send from the backend to the application
     function forceFileDownload(response: any, title: string) {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
