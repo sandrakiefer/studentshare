@@ -10,6 +10,7 @@ Das Projekt wurde im Rahmen der Lehrveranstaltung Cloud Computing realisiert. Es
 
 Die Webanwendung kann unter folgendem Link aufgerufen werden:
 https://website-dot-studentshare.ey.r.appspot.com
+(aus Kostengründen vorübergehend stillgelegt)
 
 ## Aufbau Komponenten
 
